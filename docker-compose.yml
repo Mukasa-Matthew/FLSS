@@ -24,6 +24,7 @@ services:
     build:
       context: ./backend
     container_name: file-sharing-backend
+    restart: unless-stopped
     env_file:
       - ./backend/.env
     volumes:
@@ -42,6 +43,7 @@ services:
     build:
       context: ./frontend
     container_name: file-sharing-frontend
+    restart: unless-stopped
     ports:
       - "80:80"
     depends_on:
