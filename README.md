@@ -36,7 +36,7 @@ docker compose up --build -d
 
 Open:
 
-- App: `http://localhost:8080` (or `http://YOUR_VPS_IP:8080`). Port **6000** is avoided because **Chrome blocks it** (`ERR_UNSAFE_PORT`).
+- App: `http://localhost/` or `http://YOUR_VPS_IP/` (compose maps **host port 80**). Port **6000** is avoided in browsers (`ERR_UNSAFE_PORT`). If **`docker compose up` fails** with “port already allocated”, something else is using port 80—stop that service (e.g. host nginx) or change the published port.
 
 Stop:
 
