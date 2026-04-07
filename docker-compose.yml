@@ -1,33 +1,17 @@
-services:
-  db:
-    image: postgres:16-alpine
-    container_name: file-sharing-db
-    environment:
-      POSTGRES_DB: filesharing
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d filesharing"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
+# Backend uses PostgreSQL on the VPS host (not localhost inside the container).
+# Set DATABASE_URL in backend/.env to use host.docker.internal (see backend/.env.example).
 
+services:
   backend:
     build:
       context: ./backend
     container_name: file-sharing-backend
-    environment:
-      PORT: 5000
-      DATABASE_URL: postgres://postgres:postgres@db:5432/filesharing
-      CORS_ORIGIN: "*"
-      MAX_FILE_SIZE_BYTES: 104857600
+    env_file:
+      - ./backend/.env
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     volumes:
       - uploads_data:/app/uploads
-    depends_on:
-      db:
-        condition: service_healthy
 
   frontend:
     build:
@@ -39,5 +23,4 @@ services:
       - backend
 
 volumes:
-  postgres_data:
   uploads_data:
