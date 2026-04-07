@@ -20,23 +20,25 @@ Simple file sharing app with:
 
 ## Run with Docker (recommended)
 
-PostgreSQL must be running on the **VPS host**. Copy `backend/.env.example` to `backend/.env`. The backend service uses **`network_mode: host`** (Linux) so **`DATABASE_URL` uses `127.0.0.1`** for Postgres — same as apps on the host, and avoids Docker bridge / firewall timeouts to `172.17.0.1:5432`.
+Compose runs **PostgreSQL**, **backend**, and **frontend** on one Docker network. Nginx proxies `/api` to **`http://backend:5000`** (no host-gateway hacks).
 
-```env
-DATABASE_URL=postgresql://USER:PASSWORD@127.0.0.1:5432/DATABASE
-```
+1. Copy **`backend/.env.example`** → **`backend/.env`** and set **`DATABASE_URL`** with hostname **`db`**:
 
-Ensure Postgres listens on TCP (`listen_addresses` includes localhost or `*`) and `pg_hba.conf` allows local connections for your user. The frontend container proxies `/api` to **`host.docker.internal:5000`** (the API on the host).
+   ```env
+   DATABASE_URL=postgresql://flss_user:YOUR_PASSWORD@db:5432/filesharing
+   ```
 
-From the project root:
+2. Copy **`.env.example`** → **`.env`** in the **project root** (next to `docker-compose.yml`). Set **`FLSS_POSTGRES_PASSWORD`** to the **same** password as in `DATABASE_URL`.
 
-```bash
-docker compose up --build -d
-```
+3. From the project root:
+
+   ```bash
+   docker compose up --build -d
+   ```
 
 Open:
 
-- App: `http://localhost/` or `http://YOUR_VPS_IP/` (compose maps **host port 80**). Port **6000** is avoided in browsers (`ERR_UNSAFE_PORT`). If **`docker compose up` fails** with “port already allocated”, something else is using port 80—stop that service (e.g. host nginx) or change the published port.
+- App: `http://localhost/` or `http://YOUR_VPS_IP/` (port **80**). If **“port already allocated”**, stop whatever else uses port 80 (e.g. host nginx).
 
 Stop:
 
@@ -44,11 +46,13 @@ Stop:
 docker compose down
 ```
 
-Stop and remove the uploads volume:
+Stop and remove **database + uploads** volumes (deletes Postgres data and uploaded files):
 
 ```bash
 docker compose down -v
 ```
+
+If you previously used Postgres **on the host**, migrate with `pg_dump` / `pg_restore` into the `db` container, or start fresh with the steps above.
 
 ## Local development (without Docker)
 
