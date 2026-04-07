@@ -36,7 +36,7 @@ docker compose up --build -d
 
 Open:
 
-- App: `http://localhost:6000` (or `http://YOUR_VPS_IP:6000`)
+- App: `http://localhost:8080` (or `http://YOUR_VPS_IP:8080`). Port **6000** is avoided because **Chrome blocks it** (`ERR_UNSAFE_PORT`).
 
 Stop:
 

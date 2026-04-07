@@ -18,7 +18,8 @@ services:
       context: ./frontend
     container_name: file-sharing-frontend
     ports:
-      - "6000:80"
+      # Not 6000 — Chrome blocks it (ERR_UNSAFE_PORT). Use 8080 or 8443, etc.
+      - "8080:80"
     depends_on:
       - backend
 
