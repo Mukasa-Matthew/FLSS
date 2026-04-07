@@ -1,15 +1,15 @@
-# Backend uses PostgreSQL on the VPS host (not localhost inside the container).
-# Set DATABASE_URL in backend/.env to use host.docker.internal (see backend/.env.example).
+# Backend uses host networking (Linux) so DATABASE_URL can use 127.0.0.1 for Postgres on the
+# VPS — avoids Docker bridge + UFW blocking container → host:5432 (ETIMEDOUT to 172.17.0.1).
+# Frontend still runs in bridge mode and proxies API to the host where the backend listens.
 
 services:
   backend:
     build:
       context: ./backend
     container_name: file-sharing-backend
+    network_mode: host
     env_file:
       - ./backend/.env
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
     volumes:
       - uploads_data:/app/uploads
     healthcheck:
@@ -17,12 +17,14 @@ services:
       interval: 10s
       timeout: 5s
       retries: 12
-      start_period: 120s
+      start_period: 60s
 
   frontend:
     build:
       context: ./frontend
     container_name: file-sharing-frontend
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     ports:
       # Host :80 → app at http://YOUR_IP/ (no port in URL). Stop any other service using host port 80 first.
       - "80:80"

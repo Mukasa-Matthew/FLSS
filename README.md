@@ -20,13 +20,13 @@ Simple file sharing app with:
 
 ## Run with Docker (recommended)
 
-PostgreSQL must be running on the **VPS host** (or another reachable host). Copy `backend/.env.example` to `backend/.env` and set `DATABASE_URL` with **`host.docker.internal`** as the hostname (not `localhost`), so the backend container can reach the hosts Postgres:
+PostgreSQL must be running on the **VPS host**. Copy `backend/.env.example` to `backend/.env`. The backend service uses **`network_mode: host`** (Linux) so **`DATABASE_URL` uses `127.0.0.1`** for Postgres — same as apps on the host, and avoids Docker bridge / firewall timeouts to `172.17.0.1:5432`.
 
 ```env
-DATABASE_URL=postgresql://USER:PASSWORD@host.docker.internal:5432/DATABASE
+DATABASE_URL=postgresql://USER:PASSWORD@127.0.0.1:5432/DATABASE
 ```
 
-Ensure Postgres accepts TCP connections from Docker (e.g. `listen_addresses = '*'` in `postgresql.conf` and `pg_hba.conf` allows the Docker bridge). The compose file maps `host.docker.internal` to the host gateway.
+Ensure Postgres listens on TCP (`listen_addresses` includes localhost or `*`) and `pg_hba.conf` allows local connections for your user. The frontend container proxies `/api` to **`host.docker.internal:5000`** (the API on the host).
 
 From the project root:
 
